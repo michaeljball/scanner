@@ -12,13 +12,14 @@ import json
 #  [28]'Vuln Publication Date', [29]'Patch Publication Date', [30]'Plugin Publication Date', [31]'Plugin Modification Date', 
 #  [32]'Exploit Ease', [33]'Exploit Frameworks', [34]'Check Type', [35]'Version'
 
+csv.field_size_limit(1000000000)       # Allow very large CSV files
 
 f = open(sys.argv[1], 'rt')            # Get Nessus CSV scan file from commandline
 
  
 db = my.connect(host="127.0.0.1",      # Open connection to scan database
 user="scanner",
-passwd="Scanner",
+passwd="Scanner01!!",
 db="scanner"
 )
  
@@ -40,13 +41,14 @@ try:
   headerfields = next(reader)        # Get names of columns into 'headerfields[]'
   print headerfields                 # this is temporary, for debug, not a function of the actual app.
   for i in range(500000):
-    row = next(reader)
-    try:
-      float(row[0])               # Valid rows start with a numeric column - value between 10000 and 100000 
-    except ValueError:
-      print("Not a valid row!")
-      pass
-    else:
+     print(i)
+     row = next(reader)
+     try:
+       float(row[0])               # Valid rows start with a numeric column - value between 10000 and 100000 
+     except ValueError:
+       print("Not a valid row!")
+       pass
+     else:
       try:
         value = long(row[0])
       except ValueError:
@@ -126,9 +128,6 @@ try:
              #  continue
          else:
             print ("Value out of range!")
-
-
-
 
 
 finally:
