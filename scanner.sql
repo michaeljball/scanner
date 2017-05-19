@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 11, 2017 at 08:40 AM
+-- Generation Time: May 19, 2017 at 01:22 PM
 -- Server version: 5.7.18-0ubuntu0.17.04.1
 -- PHP Version: 7.0.18-0ubuntu0.17.04.1
 
@@ -54,26 +54,29 @@ CREATE TABLE `hosts` (
   `Scan_Date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `plugins`
--- Store information about used Nessus plugins
+-- Table structure for table `nessus`
+--
 
-CREATE TABLE `plugins` (
-  `Plugin` bigint(20) NOT NULL,
+CREATE TABLE `nessus` (
+  `Plugin` int(11) NOT NULL,
   `Plugin_Name` varchar(128) DEFAULT NULL,
   `Family` varchar(128) DEFAULT NULL,
   `Severity` varchar(30) DEFAULT NULL,
+  `IP_Address` varchar(30) DEFAULT NULL,
   `Protocol` varchar(12) DEFAULT NULL,
   `Port` int(11) DEFAULT NULL,
   `Exploit` varchar(8) DEFAULT NULL,
   `Repository` varchar(30) DEFAULT NULL,
-  `Plugin_Text` text,
-  `Synopsis` text,
-  `Description` text,
-  `Solution` text,
+  `MAC_Address` varchar(30) DEFAULT NULL,
+  `DNS_Name` varchar(128) DEFAULT NULL,
+  `NetBIOS_Name` varchar(128) DEFAULT NULL,
+  `Plugin_Text` varchar(1023) DEFAULT NULL,
+  `Synopsis` varchar(1023) DEFAULT NULL,
+  `Description` varchar(1023) DEFAULT NULL,
+  `Solution` varchar(1023) DEFAULT NULL,
   `See_Also` varchar(1023) DEFAULT NULL,
   `Risk_Factor` varchar(30) DEFAULT NULL,
   `STIG_Severity` varchar(30) DEFAULT NULL,
@@ -84,6 +87,7 @@ CREATE TABLE `plugins` (
   `CVE` varchar(128) DEFAULT NULL,
   `BID` varchar(128) DEFAULT NULL,
   `Cross_References` varchar(255) DEFAULT NULL,
+  `First_Discovered` varchar(32) DEFAULT NULL,
   `Mitigated_On` varchar(32) DEFAULT NULL,
   `Vuln_Publication_Date` varchar(32) DEFAULT NULL,
   `Patch_Publication_Date` varchar(32) DEFAULT NULL,
@@ -98,17 +102,79 @@ CREATE TABLE `plugins` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `scans`
+-- Table structure for table `plugins`
 --
 
-CREATE TABLE `scans` (
+CREATE TABLE `plugins` (
+  `Plugin` bigint(20) NOT NULL,
+  `Plugin_Name` varchar(255) DEFAULT NULL,
+  `Family` varchar(128) DEFAULT NULL,
+  `Severity` varchar(30) DEFAULT NULL,
+  `Protocol` varchar(12) DEFAULT NULL,
+  `Port` int(11) DEFAULT NULL,
+  `Exploit` varchar(8) DEFAULT NULL,
+  `Repository` varchar(30) DEFAULT NULL,
+  `Plugin_Text` text,
+  `Synopsis` text,
+  `Description` text,
+  `Solution` text,
+  `See_Also` text,
+  `Risk_Factor` varchar(30) DEFAULT NULL,
+  `STIG_Severity` varchar(30) DEFAULT NULL,
+  `CVSS_Base_Score` int(11) DEFAULT NULL,
+  `CVSS_Temporal_Score` int(11) DEFAULT NULL,
+  `CVSS_Vector` varchar(128) DEFAULT NULL,
+  `CPE` varchar(128) DEFAULT NULL,
+  `CVE` text,
+  `BID` varchar(255) DEFAULT NULL,
+  `Cross_References` varchar(255) DEFAULT NULL,
+  `Mitigated_On` varchar(32) DEFAULT NULL,
+  `Vuln_Publication_Date` varchar(32) DEFAULT NULL,
+  `Patch_Publication_Date` varchar(32) DEFAULT NULL,
+  `Plugin_Publication_Date` varchar(32) DEFAULT NULL,
+  `Plugin_Modification_Date` varchar(32) DEFAULT NULL,
+  `Exploit_Ease` varchar(255) DEFAULT NULL,
+  `Exploit_Frameworks` varchar(255) DEFAULT NULL,
+  `Check_Type` varchar(30) DEFAULT NULL,
+  `Version` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `repeats`
+--
+
+CREATE TABLE `repeats` (
+  `RepeatKey` int(11) NOT NULL,
   `ScanKey` int(11) NOT NULL,
   `Plugin` varchar(32) NOT NULL,
   `IP_Address` varchar(30) DEFAULT NULL,
   `MAC_Address` varchar(30) DEFAULT NULL,
   `DNS_Name` varchar(128) DEFAULT NULL,
   `NetBios_Name` varchar(32) NOT NULL,
-  `Scan_Date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `Scan_Date` varchar(32) DEFAULT NULL,
+  `First_Discovered` varchar(32) DEFAULT NULL,
+  `Mitigated_On` varchar(32) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scans`
+--
+
+CREATE TABLE `scans` (
+  `ScanKey` int(11) NOT NULL,
+  `Severity` varchar(16) NOT NULL,
+  `Plugin` varchar(32) NOT NULL,
+  `IP_Address` varchar(30) DEFAULT NULL,
+  `Port` varchar(16) NOT NULL,
+  `Protocol` varchar(8) NOT NULL,
+  `MAC_Address` varchar(30) DEFAULT NULL,
+  `DNS_Name` varchar(128) DEFAULT NULL,
+  `NetBios_Name` varchar(32) NOT NULL,
+  `Scan_Date` varchar(32) DEFAULT NULL,
   `First_Discovered` varchar(32) DEFAULT NULL,
   `Mitigated_On` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -124,12 +190,24 @@ ALTER TABLE `hosts`
   ADD PRIMARY KEY (`hostkey`);
 
 --
+-- Indexes for table `nessus`
+--
+ALTER TABLE `nessus`
+  ADD PRIMARY KEY (`Plugin`);
 
+--
 -- Indexes for table `plugins`
 --
 ALTER TABLE `plugins`
   ADD PRIMARY KEY (`Plugin`),
   ADD KEY `Plugin` (`Plugin`);
+
+--
+-- Indexes for table `repeats`
+--
+ALTER TABLE `repeats`
+  ADD PRIMARY KEY (`RepeatKey`),
+  ADD UNIQUE KEY `Scankey_idx` (`ScanKey`);
 
 --
 -- Indexes for table `scans`
@@ -145,13 +223,22 @@ ALTER TABLE `scans`
 -- AUTO_INCREMENT for table `hosts`
 --
 ALTER TABLE `hosts`
-  MODIFY `hostkey` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `hostkey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3585;
 --
-
+-- AUTO_INCREMENT for table `nessus`
+--
+ALTER TABLE `nessus`
+  MODIFY `Plugin` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `repeats`
+--
+ALTER TABLE `repeats`
+  MODIFY `RepeatKey` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `scans`
 --
 ALTER TABLE `scans`
-  MODIFY `ScanKey` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ScanKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164400;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
